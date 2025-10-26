@@ -18,6 +18,10 @@ pnpm-lock.yaml
 dist/
 build/
 coverage/
+tests/coverage/
+# ServiceNow build output
+servicenow/script-includes/*.js
+
 
 # Common for various frameworks
 .next/           # Next.js
