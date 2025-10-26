@@ -38,8 +38,7 @@ class PathUtils {
     }
 
     // Split by dot; keep array indices as strings
-    const parts = path.split('.');
-    return parts;
+    return path.split('.');
   }
 
   isValidPath(path) {

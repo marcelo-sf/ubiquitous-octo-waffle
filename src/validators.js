@@ -94,10 +94,7 @@ class NumberValidator {
     }
 
     if (expected === 'integer' && !Number.isInteger(value)) {
-      const kind = typeof value === 'number' ? 'float' : this._typeOf(value);
-      throw new Error(kind === 'float'
-        ? 'Expected integer but got float'
-        : `Expected type integer but got ${kind}`);
+      throw new Error(`Expected type integer but got float`);
     }
 
     if (rule.multipleOf !== undefined) {

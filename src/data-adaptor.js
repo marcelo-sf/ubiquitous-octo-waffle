@@ -20,7 +20,7 @@ class DataAdaptor {
     }
     this.mapping = mappingConfig.map((r, idx) => ({
       ...r,
-      __index: idx
+      __index: idx,
     }));
     this.pathUtils = new PathUtils();
     this.extractor = new ValueExtractor(this.pathUtils);

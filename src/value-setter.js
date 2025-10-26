@@ -72,7 +72,7 @@ class ValueSetter {
     if (typeof target.set !== 'function') {
       Object.defineProperty(target, 'set', {
         value: this.set.bind(this),
-        enumerable: false
+        enumerable: false,
       });
     }
     return target;
