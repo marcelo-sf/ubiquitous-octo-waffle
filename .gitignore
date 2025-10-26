@@ -68,3 +68,4 @@ crash.log
 *~
 # Any log files created during development
 *.log
+/.idea/
