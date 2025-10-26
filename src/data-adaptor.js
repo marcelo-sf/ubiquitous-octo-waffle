@@ -106,12 +106,7 @@ class DataAdaptor {
         // Build input for transform
         const input = this._buildTransformInput(sourceObj, rule);
 
-        // Required check (pre-default for presence of selector result)
-        if (rule.required && (input === undefined || input === null)) {
-          throw new Error(`Field "${rule.target || '<unknown>'}" is required`);
-        }
-
-        // Apply transform
+        // Apply transform or direct mapping
         let value;
         if (typeof rule.transform === 'function') {
           value = rule.transform(input, { source: sourceObj }); // LOCKED CONTRACT
@@ -122,6 +117,11 @@ class DataAdaptor {
             throw new Error(`Direct mapping requires exactly one source field`);
           }
           value = input[keys[0]];
+        }
+
+        // Required check (AFTER getting the value)
+        if (rule.required && (value === undefined || value === null)) {
+          throw new Error(`Field "${rule.target || '<unknown>'}" is required`);
         }
 
         // Apply default if needed
