@@ -21,7 +21,7 @@ describe('DataAdaptor - Integration Tests', () => {
     it('should transform simple field rename', () => {
       const mapping = [
         {
-          source: 'user_name',
+          sources: { user_name : 'user_name'},
           target: 'userName',
           type: 'string',
           required: true,
@@ -36,9 +36,9 @@ describe('DataAdaptor - Integration Tests', () => {
 
     it('should transform multiple fields', () => {
       const mapping = [
-        { source: 'first_name', target: 'firstName', type: 'string', required: true },
-        { source: 'last_name', target: 'lastName', type: 'string', required: true },
-        { source: 'age', target: 'age', type: 'integer', required: true },
+        { sources: { first_name: 'first_name'}, target: 'firstName', type: 'string', required: true },
+        { sources: { last_name: 'last_name'}, target: 'lastName', type: 'string', required: true },
+        { sources: { age: 'age'}, target: 'age', type: 'integer', required: true },
       ];
 
       adaptor = new DataAdaptor(mapping);
@@ -57,8 +57,8 @@ describe('DataAdaptor - Integration Tests', () => {
 
     it('should create nested target structure', () => {
       const mapping = [
-        { source: 'street', target: 'address.street', type: 'string', required: true },
-        { source: 'city', target: 'address.city', type: 'string', required: true },
+        { sources: { street: 'street'} , target: 'address.street', type: 'string', required: true },
+        { sources: { city: 'city'}, target: 'address.city', type: 'string', required: true },
       ];
 
       adaptor = new DataAdaptor(mapping);
@@ -77,19 +77,25 @@ describe('DataAdaptor - Integration Tests', () => {
 
     it('should extract from nested source structure', () => {
       const mapping = [
-        { source: 'user.profile.email', target: 'email', type: 'string', format: 'email', required: true },
+        {
+          sources: { email: 'user.profile.email' },
+          target: 'email',
+          type: 'string',
+          format: 'email',
+          required: true,
+        },
       ];
 
       adaptor = new DataAdaptor(mapping);
       const result = adaptor.transform({
         user: {
           profile: {
-            email: 'john@example.com',
+            email: 'jack@example.com',
           },
         },
       });
 
-      expect(result).toEqual({ email: 'john@example.com' });
+      expect(result).toEqual({ email: 'jack@example.com' });
     });
   });
 
@@ -97,11 +103,13 @@ describe('DataAdaptor - Integration Tests', () => {
     it('should apply transformation function', () => {
       const mapping = [
         {
-          source: 'created_date',
+          sources: {
+            created_date: 'created_date',
+          },
           target: 'createdAt',
           type: 'string',
           format: 'date-time',
-          transform: (timestamp) => new Date(timestamp * 1000).toISOString(),
+          transform: (input) => new Date(input.created_date * 1000).toISOString(),
           required: true,
         },
       ];
@@ -115,12 +123,14 @@ describe('DataAdaptor - Integration Tests', () => {
     it('should pass full source object to transform', () => {
       const mapping = [
         {
-          source: 'amount',
+          sources: {
+            amount: 'amount',  // Named input key
+          },
           target: 'formattedAmount',
           type: 'string',
-          transform: (value, sourceData) => {
-            const currency = sourceData.source.currency || 'USD';
-            return `${currency} ${value.toFixed(2)}`;
+          transform: (input, { source }) => {
+            const currency = source.currency || 'USD';
+            return `${currency} ${input.amount.toFixed(2)}`;
           },
           required: true,
         },
@@ -138,10 +148,15 @@ describe('DataAdaptor - Integration Tests', () => {
     it('should handle multiple source fields (computed)', () => {
       const mapping = [
         {
-          sources: ['first_name', 'last_name'],
+          sources: {
+            first: 'first_name',
+            last: 'last_name',
+          },
           target: 'fullName',
           type: 'string',
-          transform: (values) => values.filter(Boolean).join(' '),
+          transform: (input, { source }) => {
+            return [input.first, input.last].filter(Boolean).join(' ');
+          },
           required: true,
         },
       ];
@@ -160,11 +175,11 @@ describe('DataAdaptor - Integration Tests', () => {
 
       const mapping = [
         {
-          source: 'status_code',
+          sources: { status_code: 'status_code'},
           target: 'status',
           type: 'string',
           enum: ['active', 'inactive', 'pending'],
-          transform: (value) => STATUS_MAP[value],
+          transform: (input) => STATUS_MAP[input.status_code],
           required: true,
         },
       ];
@@ -180,7 +195,7 @@ describe('DataAdaptor - Integration Tests', () => {
     it('should apply default when source is missing', () => {
       const mapping = [
         {
-          source: 'optional_field',
+          sources: { optional_field: 'optional_field'},
           target: 'optionalField',
           type: 'string',
           required: false,
@@ -197,7 +212,7 @@ describe('DataAdaptor - Integration Tests', () => {
     it('should apply default when source is null', () => {
       const mapping = [
         {
-          source: 'optional_field',
+          sources: { optional_field: 'optional_field'},
           target: 'optionalField',
           type: 'string',
           required: false,
@@ -214,7 +229,7 @@ describe('DataAdaptor - Integration Tests', () => {
     it('should not apply default when source is empty string', () => {
       const mapping = [
         {
-          source: 'optional_field',
+          sources: { optional_field: 'optional_field'},
           target: 'optionalField',
           type: 'string',
           required: false,
@@ -231,7 +246,7 @@ describe('DataAdaptor - Integration Tests', () => {
     it('should not apply default when source is zero', () => {
       const mapping = [
         {
-          source: 'optional_field',
+          sources: {optional_field: 'optional_field'},
           target: 'optionalField',
           type: 'number',
           required: false,
@@ -248,7 +263,7 @@ describe('DataAdaptor - Integration Tests', () => {
     it('should not apply default when source is false', () => {
       const mapping = [
         {
-          source: 'optional_field',
+          sources: {optional_field: 'optional_field'},
           target: 'optionalField',
           type: 'boolean',
           required: false,
@@ -266,7 +281,12 @@ describe('DataAdaptor - Integration Tests', () => {
   describe('Validation errors', () => {
     it('should throw on required field missing', () => {
       const mapping = [
-        { source: 'name', target: 'name', type: 'string', required: true },
+        {
+          sources: { name: 'name' },  // Space after comma
+          target: 'name',
+          type: 'string',
+          required: true
+        },
       ];
 
       adaptor = new DataAdaptor(mapping);
@@ -277,7 +297,7 @@ describe('DataAdaptor - Integration Tests', () => {
 
     it('should throw on type mismatch', () => {
       const mapping = [
-        { source: 'age', target: 'age', type: 'number', required: true },
+        { sources: {age: 'age'}, target: 'age', type: 'number', required: true },
       ];
 
       adaptor = new DataAdaptor(mapping);
@@ -288,7 +308,7 @@ describe('DataAdaptor - Integration Tests', () => {
 
     it('should throw on constraint violation', () => {
       const mapping = [
-        { source: 'email', target: 'email', type: 'string', format: 'email', required: true },
+        { sources: {email: 'email'}, target: 'email', type: 'string', format: 'email', required: true },
       ];
 
       adaptor = new DataAdaptor(mapping);
@@ -299,7 +319,7 @@ describe('DataAdaptor - Integration Tests', () => {
 
     it('should include field name in error message', () => {
       const mapping = [
-        { source: 'age', target: 'userAge', type: 'number', required: true },
+        { sources: {age: 'age'}, target: 'userAge', type: 'number', required: true },
       ];
 
       adaptor = new DataAdaptor(mapping);
@@ -311,7 +331,7 @@ describe('DataAdaptor - Integration Tests', () => {
     it('should throw on transformation function error', () => {
       const mapping = [
         {
-          source: 'value',
+          sources: { value: 'value'},
           target: 'result',
           type: 'string',
           transform: () => {
@@ -332,47 +352,47 @@ describe('DataAdaptor - Integration Tests', () => {
     it('should handle ServiceNow to REST API transformation', () => {
       const mapping = [
         {
-          source: 'sys_id',
+          sources: { sys_id: 'sys_id'},
           target: 'id',
           type: 'string',
           format: 'uuid',
           required: true,
         },
         {
-          source: 'sys_created_on',
+          sources: {sys_created_on: 'sys_created_on'},
           target: 'createdAt',
           type: 'string',
           format: 'date-time',
-          transform: (glideDate) => new Date(glideDate).toISOString(),
+          transform: (input) => new Date(input.sys_created_on).toISOString(),
           required: true,
         },
         {
-          source: 'state',
+          sources: {state: 'state'},
           target: 'status',
           type: 'string',
           enum: ['draft', 'submitted', 'approved', 'rejected'],
-          transform: (state) => {
+          transform: (input) => {
             const map = { '1': 'draft', '2': 'submitted', '3': 'approved', '4': 'rejected' };
-            return map[state] || 'draft';
+            return map[input.state] || 'draft';
           },
           required: true,
         },
         {
-          sources: ['first_name', 'last_name'],
+          sources: { first_name: 'first_name', last_name: 'last_name' },
           target: 'requester.name',
           type: 'string',
-          transform: (names) => names.filter(Boolean).join(' '),
+          transform: (input) => [input.first_name, input.last_name].join(' '),
           required: true,
         },
         {
-          source: 'email',
+          sources: {email: 'email'},
           target: 'requester.email',
           type: 'string',
           format: 'email',
           required: true,
         },
         {
-          source: 'priority',
+          sources: {priority: 'priority'},
           target: 'priority',
           type: 'integer',
           minimum: 1,
@@ -408,21 +428,21 @@ describe('DataAdaptor - Integration Tests', () => {
   describe('Immutability', () => {
     it('should not mutate source object', () => {
       const mapping = [
-        { source: 'name', target: 'userName', type: 'string', required: true },
+        { sources: { name: 'name'}, target: 'userName', type: 'string', required: true },
       ];
 
-      const source = { name: 'John', age: 30 };
-      const original = JSON.parse(JSON.stringify(source));
+      const person = { name: 'John', age: 30 };
+      const original = JSON.parse(JSON.stringify(person));
 
       adaptor = new DataAdaptor(mapping);
-      adaptor.transform(source);
+      adaptor.transform(person);
 
-      expect(source).toEqual(original);
+      expect(person).toEqual(original);
     });
 
     it('should not mutate mapping config', () => {
       const mapping = [
-        { source: 'name', target: 'userName', type: 'string', required: true },
+        { sources: {name: 'name'}, target: 'userName', type: 'string', required: true },
       ];
 
       const original = JSON.parse(JSON.stringify(mapping));
