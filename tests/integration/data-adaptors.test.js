@@ -154,7 +154,7 @@ describe('DataAdaptor - Integration Tests', () => {
           },
           target: 'fullName',
           type: 'string',
-          transform: (input, { source }) => {
+          transform: (input) => {
             return [input.first, input.last].filter(Boolean).join(' ');
           },
           required: true,
