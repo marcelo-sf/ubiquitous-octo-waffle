@@ -18,14 +18,51 @@ class DataAdaptor {
     if (!Array.isArray(mappingConfig)) {
       throw new Error('Mapping config must be an array');
     }
+
+    this._validateConfiguration(mappingConfig);
+
     this.mapping = mappingConfig.map((r, idx) => ({
       ...r,
       __index: idx,
     }));
+
     this.pathUtils = new PathUtils();
     this.extractor = new ValueExtractor(this.pathUtils);
     this.setter = new ValueSetter(this.pathUtils);
     this.validatorFactory = new ValidatorFactory();
+  }
+
+  _validateConfiguration(config) {
+    for (let i = 0; i < config.length; i++) {
+      const rule = config[i];
+
+      // Enforce sources as object
+      if (!rule.sources || typeof rule.sources !== 'object' || Array.isArray(rule.sources)) {
+        throw new Error(
+          `Rule at index ${i}: "sources" must be an object. ` +
+          `Found: ${JSON.stringify(rule.sources)}`
+        );
+      }
+
+      if (Object.keys(rule.sources).length === 0) {
+        throw new Error(`Rule at index ${i}: "sources" cannot be empty`);
+      }
+
+      if (!rule.target || typeof rule.target !== 'string') {
+        throw new Error(`Rule at index ${i}: "target" must be a non-empty string`);
+      }
+
+      if (!rule.type || typeof rule.type !== 'string') {
+        throw new Error(`Rule at index ${i}: "type" must be a non-empty string`);
+      }
+
+      if (rule.transform && typeof rule.transform !== 'function') {
+        throw new Error(
+          `Rule at index ${i}: "transform" must be a function with ` +
+          `signature (input, { source }) => value`
+        );
+      }
+    }
   }
 
   /**
@@ -35,22 +72,18 @@ class DataAdaptor {
    * - If only rule.source (string): returns single value.
    */
   _buildTransformInput(sourceObj, rule) {
-    if (Array.isArray(rule.sources)) {
-      return rule.sources.map(sel => this.extractor.extract(sourceObj, sel));
+    if (!rule.sources || typeof rule.sources !== 'object' || Array.isArray(rule.sources)) {
+      throw new Error(
+        `Rule at target "${rule.target}": "sources" must be an object. ` +
+        `Example: { sources: { fieldName: 'path.to.source' } }`
+      );
     }
-    if (rule.sources && typeof rule.sources === 'object') {
-      const out = {};
-      for (const [k, sel] of Object.entries(rule.sources)) {
-        out[k] = this.extractor.extract(sourceObj, sel);
-      }
-      return out;
+
+    const input = {};
+    for (const [key, path] of Object.entries(rule.sources)) {
+      input[key] = this.extractor.extract(sourceObj, path);
     }
-    // legacy single selector
-    if (typeof rule.source === 'string') {
-      return this.extractor.extract(sourceObj, rule.source);
-    }
-    // nothing specified
-    return undefined;
+    return input;
   }
 
   _applyDefaultIfNeeded(value, rule) {
@@ -81,10 +114,14 @@ class DataAdaptor {
         // Apply transform
         let value;
         if (typeof rule.transform === 'function') {
-          // Always call with (input, { source })
-          value = rule.transform(input, { source: sourceObj });
+          value = rule.transform(input, { source: sourceObj }); // LOCKED CONTRACT
         } else {
-          value = input;
+          // Direct mapping only for single source
+          const keys = Object.keys(input);
+          if (keys.length > 1) {
+            throw new Error(`Direct mapping requires exactly one source field`);
+          }
+          value = input[keys[0]];
         }
 
         // Apply default if needed
