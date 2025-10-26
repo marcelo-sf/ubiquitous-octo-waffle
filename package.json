@@ -10,7 +10,8 @@
     "test:integration": "jest --runInBand --testPathPattern='tests/integration/.*\\.test\\.js$'",
     "test:unit": "jest --runInBand --testPathPattern='tests/unit/.*\\.test\\.js$'",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "build:servicenow": "node scripts/build-servicenow.js"
   },
   "devDependencies": {
     "jest": "^29.7.0",
