@@ -9,7 +9,7 @@
 const StringValidator = require('./string-validator.js');
 
 class BooleanValidator {
-  validate(value, rule = {}) {
+  validate(value, _rule) {
     if (typeof value !== 'boolean') {
       const t = this._typeOf(value);
       throw new Error(`Expected type boolean but got ${t}`);
@@ -68,7 +68,7 @@ class ObjectValidator {
 }
 
 class NullValidator {
-  validate(value, rule = {}) {
+  validate(value, _rule) {
     if (value !== null) {
       const t = this._typeOf(value);
       throw new Error(`Expected type null but got ${t}`);
