@@ -1,0 +1,57 @@
+{
+  "root": true,
+  "env": {
+    "es2022": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "script"
+  },
+  "overrides": [
+    {
+      "files": [
+        "tests/**/*.js"
+      ],
+      "env": {
+        "jest": true,
+        "node": true
+      },
+      "plugins": [
+        "jest"
+      ],
+      "extends": [
+        "plugin:jest/recommended"
+      ],
+      "rules": {
+        "no-unused-vars": [
+          "warn",
+          {
+            "args": "none"
+          }
+        ],
+        "no-undef": "off"
+      }
+    }
+  ],
+  "rules": {
+    "no-var": "error",
+    "prefer-const": "error",
+    "eqeqeq": [
+      "error",
+      "always"
+    ],
+    "no-redeclare": "error",
+    "no-implicit-globals": "error",
+    "no-unused-vars": [
+      "warn",
+      {
+        "args": "after-used"
+      }
+    ],
+    "no-console": "off"
+  }
+}
