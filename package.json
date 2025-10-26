@@ -1,0 +1,20 @@
+{
+  "name": "adaptor-project",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "private": true,
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage --coverageThreshold='{\"global\":{\"branches\":95,\"functions\":95,\"lines\":95,\"statements\":95}}'",
+    "test:integration": "jest --runInBand --testPathPattern='tests/integration/.*\\.test\\.js$'",
+    "test:unit": "jest --runInBand --testPathPattern='tests/unit/.*\\.test\\.js$'",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-jest": "^27.9.0"
+  }
+}
