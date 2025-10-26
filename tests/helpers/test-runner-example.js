@@ -8,7 +8,7 @@
 
 /**
  * Complete Test Suite Runner
- * Demonstrates the complete test infrastructure
+ * Demonstrates the complete test infrastructure with LOCKED CONTRACT
  * ECMAScript 2021 - ServiceNow Compatible
  */
 
@@ -134,76 +134,72 @@ const it = TestRunner.it.bind(TestRunner);
 const expect = TestRunner.expect.bind(TestRunner);
 
 // ============================================================================
-// EXAMPLE: Complete Integration Test Suite
+// EXAMPLE: Complete Integration Test Suite with LOCKED CONTRACT
 // ============================================================================
 
-describe('DataAdaptor - Complete Integration Tests', function() {
+describe('DataAdaptor - Complete Integration Tests (Locked Contract)', function() {
 
   it('should handle complete ServiceNow to API transformation', function() {
-    // Transformation functions
-    function parseDate(glideDateTime) {
-      return new Date(glideDateTime).toISOString();
-    }
-
-    function mapStatus(code) {
-      const map = { '1': 'new', '2': 'in_progress', '3': 'resolved' };
-      return map[code] || 'new';
-    }
-
-    function concatenateNames(names) {
-      return names.filter(function(n) {
-        return n;
-      }).join(' ');
-    }
-
-    // Mapping configuration
+    // Mapping configuration using LOCKED CONTRACT
     const mapping = [
       {
-        source: 'sys_id',
+        sources: { sys_id: 'sys_id' },
         target: 'id',
         type: 'string',
         format: 'uuid',
         required: true,
       },
       {
-        source: 'number',
+        sources: { number: 'number' },
         target: 'ticketNumber',
         type: 'string',
         pattern: '^INC[0-9]{7}$',
         required: true,
       },
       {
-        source: 'sys_created_on',
+        sources: { sys_created_on: 'sys_created_on' },
         target: 'createdAt',
         type: 'string',
         format: 'date-time',
-        transform: parseDate,
+        transform: function(input) {
+          return new Date(input.sys_created_on).toISOString();
+        },
         required: true,
       },
       {
-        source: 'state',
+        sources: { state: 'state' },
         target: 'status',
         type: 'string',
         enum: ['new', 'in_progress', 'resolved'],
-        transform: mapStatus,
+        transform: function(input) {
+          const map = { '1': 'new', '2': 'in_progress', '3': 'resolved' };
+          return map[input.state] || 'new';
+        },
         required: true,
       },
       {
-        source: ['caller_id.first_name', 'caller_id.last_name'],
+        sources: {
+          first_name: 'caller_id.first_name',
+          last_name: 'caller_id.last_name'
+        },
         target: 'requester.name',
         type: 'string',
-        transform: concatenateNames,
+        transform: function(input) {
+          return [input.first_name, input.last_name]
+            .filter(function(n) { return n; })
+            .join(' ');
+        },
         required: true,
       },
       {
-        source: 'caller_id.email',
+        sources: { email: 'caller_id.email' },
         target: 'requester.email',
         type: 'string',
         format: 'email',
         required: true,
       },
       {
-        source: 'priority',
+        sources: { priority: 'priority' },
         target: 'priority',
         type: 'integer',
         minimum: 1,
@@ -211,7 +207,7 @@ describe('DataAdaptor - Complete Integration Tests', function() {
         required: true,
       },
       {
-        source: 'short_description',
+        sources: { short_description: 'short_description' },
         target: 'title',
         type: 'string',
         minLength: 1,
@@ -219,7 +215,7 @@ describe('DataAdaptor - Complete Integration Tests', function() {
         required: true,
       },
       {
-        source: 'description',
+        sources: { description: 'description' },
         target: 'description',
         type: 'string',
         required: false,
@@ -266,13 +262,13 @@ describe('DataAdaptor - Complete Integration Tests', function() {
   it('should apply default values correctly', function() {
     const mapping = [
       {
-        source: 'name',
+        sources: { name: 'name' },
         target: 'name',
         type: 'string',
         required: true,
       },
       {
-        source: 'optional',
+        sources: { optional: 'optional' },
         target: 'optional',
         type: 'string',
         required: false,
@@ -290,7 +286,7 @@ describe('DataAdaptor - Complete Integration Tests', function() {
   it('should validate required fields', function() {
     const mapping = [
       {
-        source: 'name',
+        sources: { name: 'name' },
         target: 'name',
         type: 'string',
         required: true,
@@ -307,7 +303,7 @@ describe('DataAdaptor - Complete Integration Tests', function() {
   it('should validate email format', function() {
     const mapping = [
       {
-        source: 'email',
+        sources: { email: 'email' },
         target: 'email',
         type: 'string',
         format: 'email',
@@ -325,7 +321,7 @@ describe('DataAdaptor - Complete Integration Tests', function() {
   it('should validate number constraints', function() {
     const mapping = [
       {
-        source: 'age',
+        sources: { age: 'age' },
         target: 'age',
         type: 'integer',
         minimum: 0,
@@ -355,7 +351,7 @@ describe('DataAdaptor - Complete Integration Tests', function() {
   it('should validate enum values', function() {
     const mapping = [
       {
-        source: 'status',
+        sources: { status: 'status' },
         target: 'status',
         type: 'string',
         enum: ['active', 'inactive', 'pending'],
@@ -379,12 +375,12 @@ describe('DataAdaptor - Complete Integration Tests', function() {
   it('should handle array transformations', function() {
     const mapping = [
       {
-        source: 'tags',
+        sources: { tags: 'tags' },
         target: 'tags',
         type: 'array',
         items: { type: 'string' },
-        transform: function(tags) {
-          return tags.map(function(tag) {
+        transform: function(input) {
+          return input.tags.map(function(tag) {
             return tag.toLowerCase();
           });
         },
@@ -403,19 +399,19 @@ describe('DataAdaptor - Complete Integration Tests', function() {
   it('should handle nested object creation', function() {
     const mapping = [
       {
-        source: 'street',
+        sources: { street: 'street' },
         target: 'address.street',
         type: 'string',
         required: true,
       },
       {
-        source: 'city',
+        sources: { city: 'city' },
         target: 'address.city',
         type: 'string',
         required: true,
       },
       {
-        source: 'postal_code',
+        sources: { postal_code: 'postal_code' },
         target: 'address.postalCode',
         type: 'string',
         required: true,
@@ -441,7 +437,7 @@ describe('DataAdaptor - Complete Integration Tests', function() {
   it('should preserve immutability', function() {
     const mapping = [
       {
-        source: 'name',
+        sources: { name: 'name' },
         target: 'userName',
         type: 'string',
         required: true,
@@ -461,12 +457,12 @@ describe('DataAdaptor - Complete Integration Tests', function() {
   it('should handle context-aware transformations', function() {
     const mapping = [
       {
-        source: 'amount',
+        sources: { amount: 'amount' },
         target: 'formattedAmount',
         type: 'string',
-        transform: function(value, sourceData) {
-          const currency = sourceData.currency || 'USD';
-          return currency + ' ' + value.toFixed(2);
+        transform: function(input, context) {
+          const currency = context.source.currency || 'USD';
+          return currency + ' ' + input.amount.toFixed(2);
         },
         required: true,
       },
@@ -480,22 +476,74 @@ describe('DataAdaptor - Complete Integration Tests', function() {
 
     expect(result.formattedAmount).toBe('EUR 99.99');
   });
+
+  it('should demonstrate locked contract with multiple sources', function() {
+    const mapping = [
+      {
+        sources: {
+          urgency: 'urgency',
+          impact: 'impact'
+        },
+        target: 'priority',
+        type: 'integer',
+        minimum: 1,
+        maximum: 5,
+        transform: function(input, context) {
+          const urg = parseInt(input.urgency) || 3;
+          const imp = parseInt(input.impact) || 3;
+
+          // Business logic using context
+          if (context.source.vip_customer === true) {
+            return 1; // Highest priority for VIP
+          }
+
+          return Math.min(urg, imp);
+        },
+        required: true,
+      },
+    ];
+
+    const adaptor = new DataAdaptor(mapping);
+
+    // Non-VIP customer
+    const result1 = adaptor.transform({
+      urgency: '2',
+      impact: '3',
+      vip_customer: false,
+    });
+    expect(result1.priority).toBe(2);
+
+    // VIP customer
+    const result2 = adaptor.transform({
+      urgency: '3',
+      impact: '3',
+      vip_customer: true,
+    });
+    expect(result2.priority).toBe(1);
+  });
 });
 
 // ============================================================================
 // Run all tests
 // ============================================================================
 
-console.log('DataAdaptor Test Suite');
+console.log('DataAdaptor Test Suite - LOCKED CONTRACT DESIGN');
 console.log('='.repeat(60));
 console.log('Testing SOLID-compliant data transformation system');
-console.log('OpenAPI 3.0 validation with comprehensive test coverage\n');
+console.log('OpenAPI 3.0 validation with LOCKED transform contract');
+console.log('Transform signature: (input, { source }) => value\n');
 
 const results = TestRunner.run();
 
 // Summary
 if (results.failed === 0) {
   console.log('\n✅ ALL TESTS PASSED!');
+  console.log('\n🎯 LOCKED CONTRACT VERIFIED:');
+  console.log('   - sources: Always an object');
+  console.log('   - transform: Always (input, { source }) => value');
+  console.log('   - input: Named object with keys matching sources');
+  console.log('   - source: Full source record for context');
+  console.log('   - ZERO AMBIGUITY ✓');
 } else {
   console.log('\n❌ SOME TESTS FAILED');
   console.log('\nFailed tests:');
