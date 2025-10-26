@@ -81,7 +81,7 @@ describe('NumberValidator', () => {
 
     it('should reject float', () => {
       expect(() => validator.validate(3.14, { type: 'integer' }))
-        .toThrow('Expected integer but got float');
+        .toThrow('Expected type integer but got float');
     });
 
     it('should reject string', () => {
