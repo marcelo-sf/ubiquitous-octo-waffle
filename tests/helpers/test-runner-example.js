@@ -256,7 +256,9 @@ describe('DataMapper - Complete Integration Tests (Locked Contract)', function()
     expect(result.description).toBe('User cannot login to Outlook');
 
     // Verify date format
-    expect(result.createdAt.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)).not.toBeNull();
+    if (!result.createdAt.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)) {
+      throw new Error('Date format is incorrect');
+    }
   });
 
   it('should apply default values correctly', function() {
@@ -477,49 +479,57 @@ describe('DataMapper - Complete Integration Tests (Locked Contract)', function()
     expect(result.formattedAmount).toBe('EUR 99.99');
   });
 
-  it('should demonstrate locked contract with multiple sources', function() {
+  it('should handle multiple source fields with locked contract', function() {
     const mapping = [
       {
         sources: {
-          urgency: 'urgency',
-          impact: 'impact'
+          first: 'first_name',
+          middle: 'middle_name',
+          last: 'last_name'
         },
-        target: 'priority',
-        type: 'integer',
-        minimum: 1,
-        maximum: 5,
-        transform: function(input, context) {
-          const urg = parseInt(input.urgency) || 3;
-          const imp = parseInt(input.impact) || 3;
-
-          // Business logic using context
-          if (context.source.vip_customer === true) {
-            return 1; // Highest priority for VIP
-          }
-
-          return Math.min(urg, imp);
+        target: 'fullName',
+        type: 'string',
+        transform: function(input) {
+          return [input.first, input.middle, input.last]
+            .filter(function(n) { return n; })
+            .join(' ');
         },
         required: true,
       },
     ];
 
     const mapper = new DataMapper(mapping);
-
-    // Non-VIP customer
-    const result1 = mapper.transform({
-      urgency: '2',
-      impact: '3',
-      vip_customer: false,
+    const result = mapper.transform({
+      first_name: 'John',
+      middle_name: 'Q',
+      last_name: 'Doe',
     });
-    expect(result1.priority).toBe(2);
 
-    // VIP customer
-    const result2 = mapper.transform({
-      urgency: '3',
-      impact: '3',
-      vip_customer: true,
-    });
-    expect(result2.priority).toBe(1);
+    expect(result.fullName).toBe('John Q Doe');
+  });
+
+  it('should enforce sources as object only', function() {
+    // Should throw when trying to create with array sources
+    expect(function() {
+      new DataMapper([
+        {
+          sources: ['field1', 'field2'],  // Invalid: array
+          target: 'result',
+          type: 'string',
+        },
+      ]);
+    }).toThrow('sources" must be an object');
+
+    // Should throw when trying to create with string source
+    expect(function() {
+      new DataMapper([
+        {
+          sources: 'field',  // Invalid: string
+          target: 'result',
+          type: 'string',
+        },
+      ]);
+    }).toThrow('sources" must be an object');
   });
 });
 
@@ -527,23 +537,21 @@ describe('DataMapper - Complete Integration Tests (Locked Contract)', function()
 // Run all tests
 // ============================================================================
 
-console.log('DataMapper Test Suite - LOCKED CONTRACT DESIGN');
+console.log('DataMapper Test Suite - LOCKED CONTRACT');
 console.log('='.repeat(60));
 console.log('Testing SOLID-compliant data transformation system');
-console.log('OpenAPI 3.0 validation with LOCKED transform contract');
-console.log('Transform signature: (input, { source }) => value\n');
+console.log('OpenAPI 3.0 validation with locked transform contract');
+console.log('Transform signature: (input, { source }) - NO EXCEPTIONS\n');
 
 const results = TestRunner.run();
 
 // Summary
 if (results.failed === 0) {
   console.log('\n✅ ALL TESTS PASSED!');
-  console.log('\n🎯 LOCKED CONTRACT VERIFIED:');
-  console.log('   - sources: Always an object');
-  console.log('   - transform: Always (input, { source }) => value');
-  console.log('   - input: Named object with keys matching sources');
-  console.log('   - source: Full source record for context');
-  console.log('   - ZERO AMBIGUITY ✓');
+  console.log('\n🎯 Locked Contract Verified:');
+  console.log('   - All sources are objects');
+  console.log('   - All transforms use (input, { source }) signature');
+  console.log('   - Zero ambiguity, zero exceptions');
 } else {
   console.log('\n❌ SOME TESTS FAILED');
   console.log('\nFailed tests:');
