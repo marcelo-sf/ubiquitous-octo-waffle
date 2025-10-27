@@ -137,7 +137,7 @@ const expect = TestRunner.expect.bind(TestRunner);
 // EXAMPLE: Complete Integration Test Suite with LOCKED CONTRACT
 // ============================================================================
 
-describe('DataAdaptor - Complete Integration Tests (Locked Contract)', function() {
+describe('DataMapper - Complete Integration Tests (Locked Contract)', function() {
 
   it('should handle complete ServiceNow to API transformation', function() {
     // Mapping configuration using LOCKED CONTRACT
@@ -223,8 +223,8 @@ describe('DataAdaptor - Complete Integration Tests (Locked Contract)', function(
       },
     ];
 
-    // Create adaptor
-    const adaptor = new DataAdaptor(mapping);
+    // Create mapper
+    const mapper = new DataMapper(mapping);
 
     // Source data (ServiceNow format)
     const source = {
@@ -243,7 +243,7 @@ describe('DataAdaptor - Complete Integration Tests (Locked Contract)', function(
     };
 
     // Transform
-    const result = adaptor.transform(source);
+    const result = mapper.transform(source);
 
     // Verify structure
     expect(result.id).toBe('550e8400-e29b-41d4-a716-446655440000');
@@ -276,8 +276,8 @@ describe('DataAdaptor - Complete Integration Tests (Locked Contract)', function(
       },
     ];
 
-    const adaptor = new DataAdaptor(mapping);
-    const result = adaptor.transform({ name: 'Test' });
+    const mapper = new DataMapper(mapping);
+    const result = mapper.transform({ name: 'Test' });
 
     expect(result.name).toBe('Test');
     expect(result.optional).toBe('default value');
@@ -293,10 +293,10 @@ describe('DataAdaptor - Complete Integration Tests (Locked Contract)', function(
       },
     ];
 
-    const adaptor = new DataAdaptor(mapping);
+    const mapper = new DataMapper(mapping);
 
     expect(function() {
-      adaptor.transform({});
+      mapper.transform({});
     }).toThrow('required');
   });
 
@@ -311,10 +311,10 @@ describe('DataAdaptor - Complete Integration Tests (Locked Contract)', function(
       },
     ];
 
-    const adaptor = new DataAdaptor(mapping);
+    const mapper = new DataMapper(mapping);
 
     expect(function() {
-      adaptor.transform({ email: 'invalid-email' });
+      mapper.transform({ email: 'invalid-email' });
     }).toThrow('email format');
   });
 
@@ -330,21 +330,21 @@ describe('DataAdaptor - Complete Integration Tests (Locked Contract)', function(
       },
     ];
 
-    const adaptor = new DataAdaptor(mapping);
+    const mapper = new DataMapper(mapping);
 
     // Valid
     expect(function() {
-      adaptor.transform({ age: 30 });
+      mapper.transform({ age: 30 });
     }).not.toThrow();
 
     // Invalid - too large
     expect(function() {
-      adaptor.transform({ age: 150 });
+      mapper.transform({ age: 150 });
     }).toThrow('maximum');
 
     // Invalid - not integer
     expect(function() {
-      adaptor.transform({ age: 30.5 });
+      mapper.transform({ age: 30.5 });
     }).toThrow('integer');
   });
 
@@ -359,16 +359,16 @@ describe('DataAdaptor - Complete Integration Tests (Locked Contract)', function(
       },
     ];
 
-    const adaptor = new DataAdaptor(mapping);
+    const mapper = new DataMapper(mapping);
 
     // Valid
     expect(function() {
-      adaptor.transform({ status: 'active' });
+      mapper.transform({ status: 'active' });
     }).not.toThrow();
 
     // Invalid
     expect(function() {
-      adaptor.transform({ status: 'unknown' });
+      mapper.transform({ status: 'unknown' });
     }).toThrow('not in enum');
   });
 
@@ -388,8 +388,8 @@ describe('DataAdaptor - Complete Integration Tests (Locked Contract)', function(
       },
     ];
 
-    const adaptor = new DataAdaptor(mapping);
-    const result = adaptor.transform({
+    const mapper = new DataMapper(mapping);
+    const result = mapper.transform({
       tags: ['JavaScript', 'ServiceNow', 'API'],
     });
 
@@ -418,8 +418,8 @@ describe('DataAdaptor - Complete Integration Tests (Locked Contract)', function(
       },
     ];
 
-    const adaptor = new DataAdaptor(mapping);
-    const result = adaptor.transform({
+    const mapper = new DataMapper(mapping);
+    const result = mapper.transform({
       street: '123 Main St',
       city: 'New York',
       postal_code: '10001',
@@ -447,8 +447,8 @@ describe('DataAdaptor - Complete Integration Tests (Locked Contract)', function(
     const source = { name: 'John', age: 30 };
     const originalSource = JSON.parse(JSON.stringify(source));
 
-    const adaptor = new DataAdaptor(mapping);
-    adaptor.transform(source);
+    const mapper = new DataMapper(mapping);
+    mapper.transform(source);
 
     // Source should not be mutated
     expect(source).toEqual(originalSource);
@@ -468,8 +468,8 @@ describe('DataAdaptor - Complete Integration Tests (Locked Contract)', function(
       },
     ];
 
-    const adaptor = new DataAdaptor(mapping);
-    const result = adaptor.transform({
+    const mapper = new DataMapper(mapping);
+    const result = mapper.transform({
       amount: 99.99,
       currency: 'EUR',
     });
@@ -503,10 +503,10 @@ describe('DataAdaptor - Complete Integration Tests (Locked Contract)', function(
       },
     ];
 
-    const adaptor = new DataAdaptor(mapping);
+    const mapper = new DataMapper(mapping);
 
     // Non-VIP customer
-    const result1 = adaptor.transform({
+    const result1 = mapper.transform({
       urgency: '2',
       impact: '3',
       vip_customer: false,
@@ -514,7 +514,7 @@ describe('DataAdaptor - Complete Integration Tests (Locked Contract)', function(
     expect(result1.priority).toBe(2);
 
     // VIP customer
-    const result2 = adaptor.transform({
+    const result2 = mapper.transform({
       urgency: '3',
       impact: '3',
       vip_customer: true,
@@ -527,7 +527,7 @@ describe('DataAdaptor - Complete Integration Tests (Locked Contract)', function(
 // Run all tests
 // ============================================================================
 
-console.log('DataAdaptor Test Suite - LOCKED CONTRACT DESIGN');
+console.log('DataMapper Test Suite - LOCKED CONTRACT DESIGN');
 console.log('='.repeat(60));
 console.log('Testing SOLID-compliant data transformation system');
 console.log('OpenAPI 3.0 validation with LOCKED transform contract');

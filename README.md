@@ -13,7 +13,7 @@ A tiny, deterministic transformation layer that maps data from a source object t
 ## Install
 
 ```bash
-npm install adaptor-exp
+npm install mapper-exp
 ```
 
 > The library is plain JS, no runtime deps beyond Node.
@@ -59,9 +59,9 @@ const mapping = [
   }
 ];
 
-const adaptor = new DataMapper({ mapping });
+const mapper = new DataMapper({ mapping });
 
-const out = adaptor.transform({
+const out = mapper.transform({
   user_name: 'jdoe',
   first_name: 'John',
   last_name: 'Doe',
@@ -220,9 +220,9 @@ const mapping = [
   }
 ];
 
-const adaptor = new DataMapper({ mapping });
+const mapper = new DataMapper({ mapping });
 
-const out = adaptor.transform({
+const out = mapper.transform({
   sys_id: 'INC00123',
   short_description: 'VPN not connecting',
   caller: { first_name: 'John', last_name: 'Doe', email: 'john.doe@example.com' }

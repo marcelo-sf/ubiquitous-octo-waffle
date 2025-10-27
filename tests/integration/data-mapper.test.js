@@ -6,16 +6,16 @@
 //
 // You should have received a copy of the GNU General Public License along with MapperExp. If not, see <https://www.gnu.org/licenses/>.
 
-const DataAdaptor = require('../../src/data-mapper.js');
+const DataMapper = require('../../src/data-mapper.js');
 
 /**
- * DataAdaptor Integration Test Suite
+ * DataMapper Integration Test Suite
  * Tests complete transformation pipeline
  * ECMAScript 2021 - ServiceNow Compatible
  */
 
-describe('DataAdaptor - Integration Tests', () => {
-  let adaptor;
+describe('DataMapper - Integration Tests', () => {
+  let mapper;
 
   describe('Simple transformations', () => {
     it('should transform simple field rename', () => {
@@ -28,8 +28,8 @@ describe('DataAdaptor - Integration Tests', () => {
         },
       ];
 
-      adaptor = new DataAdaptor(mapping);
-      const result = adaptor.transform({ user_name: 'John' });
+      mapper = new DataMapper(mapping);
+      const result = mapper.transform({ user_name: 'John' });
 
       expect(result).toEqual({ userName: 'John' });
     });
@@ -41,8 +41,8 @@ describe('DataAdaptor - Integration Tests', () => {
         { sources: { age: 'age'}, target: 'age', type: 'integer', required: true },
       ];
 
-      adaptor = new DataAdaptor(mapping);
-      const result = adaptor.transform({
+      mapper = new DataMapper(mapping);
+      const result = mapper.transform({
         first_name: 'John',
         last_name: 'Doe',
         age: 30,
@@ -61,8 +61,8 @@ describe('DataAdaptor - Integration Tests', () => {
         { sources: { city: 'city'}, target: 'address.city', type: 'string', required: true },
       ];
 
-      adaptor = new DataAdaptor(mapping);
-      const result = adaptor.transform({
+      mapper = new DataMapper(mapping);
+      const result = mapper.transform({
         street: '123 Main St',
         city: 'NYC',
       });
@@ -86,8 +86,8 @@ describe('DataAdaptor - Integration Tests', () => {
         },
       ];
 
-      adaptor = new DataAdaptor(mapping);
-      const result = adaptor.transform({
+      mapper = new DataMapper(mapping);
+      const result = mapper.transform({
         user: {
           profile: {
             email: 'jack@example.com',
@@ -114,8 +114,8 @@ describe('DataAdaptor - Integration Tests', () => {
         },
       ];
 
-      adaptor = new DataAdaptor(mapping);
-      const result = adaptor.transform({ created_date: 1609459200 }); // 2021-01-01 00:00:00 UTC
+      mapper = new DataMapper(mapping);
+      const result = mapper.transform({ created_date: 1609459200 }); // 2021-01-01 00:00:00 UTC
 
       expect(result.createdAt).toBe('2021-01-01T00:00:00.000Z');
     });
@@ -136,8 +136,8 @@ describe('DataAdaptor - Integration Tests', () => {
         },
       ];
 
-      adaptor = new DataAdaptor(mapping);
-      const result = adaptor.transform({
+      mapper = new DataMapper(mapping);
+      const result = mapper.transform({
         amount: 99.99,
         currency: 'EUR',
       });
@@ -161,8 +161,8 @@ describe('DataAdaptor - Integration Tests', () => {
         },
       ];
 
-      adaptor = new DataAdaptor(mapping);
-      const result = adaptor.transform({
+      mapper = new DataMapper(mapping);
+      const result = mapper.transform({
         first_name: 'John',
         last_name: 'Doe',
       });
@@ -184,8 +184,8 @@ describe('DataAdaptor - Integration Tests', () => {
         },
       ];
 
-      adaptor = new DataAdaptor(mapping);
-      const result = adaptor.transform({ status_code: '1' });
+      mapper = new DataMapper(mapping);
+      const result = mapper.transform({ status_code: '1' });
 
       expect(result.status).toBe('active');
     });
@@ -203,8 +203,8 @@ describe('DataAdaptor - Integration Tests', () => {
         },
       ];
 
-      adaptor = new DataAdaptor(mapping);
-      const result = adaptor.transform({});
+      mapper = new DataMapper(mapping);
+      const result = mapper.transform({});
 
       expect(result.optionalField).toBe('default value');
     });
@@ -220,8 +220,8 @@ describe('DataAdaptor - Integration Tests', () => {
         },
       ];
 
-      adaptor = new DataAdaptor(mapping);
-      const result = adaptor.transform({ optional_field: null });
+      mapper = new DataMapper(mapping);
+      const result = mapper.transform({ optional_field: null });
 
       expect(result.optionalField).toBe('default value');
     });
@@ -237,8 +237,8 @@ describe('DataAdaptor - Integration Tests', () => {
         },
       ];
 
-      adaptor = new DataAdaptor(mapping);
-      const result = adaptor.transform({ optional_field: '' });
+      mapper = new DataMapper(mapping);
+      const result = mapper.transform({ optional_field: '' });
 
       expect(result.optionalField).toBe('');
     });
@@ -254,8 +254,8 @@ describe('DataAdaptor - Integration Tests', () => {
         },
       ];
 
-      adaptor = new DataAdaptor(mapping);
-      const result = adaptor.transform({ optional_field: 0 });
+      mapper = new DataMapper(mapping);
+      const result = mapper.transform({ optional_field: 0 });
 
       expect(result.optionalField).toBe(0);
     });
@@ -271,8 +271,8 @@ describe('DataAdaptor - Integration Tests', () => {
         },
       ];
 
-      adaptor = new DataAdaptor(mapping);
-      const result = adaptor.transform({ optional_field: false });
+      mapper = new DataMapper(mapping);
+      const result = mapper.transform({ optional_field: false });
 
       expect(result.optionalField).toBe(false);
     });
@@ -289,9 +289,9 @@ describe('DataAdaptor - Integration Tests', () => {
         },
       ];
 
-      adaptor = new DataAdaptor(mapping);
+      mapper = new DataMapper(mapping);
 
-      expect(() => adaptor.transform({}))
+      expect(() => mapper.transform({}))
         .toThrow(/required/i);
     });
 
@@ -300,9 +300,9 @@ describe('DataAdaptor - Integration Tests', () => {
         { sources: {age: 'age'}, target: 'age', type: 'number', required: true },
       ];
 
-      adaptor = new DataAdaptor(mapping);
+      mapper = new DataMapper(mapping);
 
-      expect(() => adaptor.transform({ age: 'not a number' }))
+      expect(() => mapper.transform({ age: 'not a number' }))
         .toThrow(/Expected type number/);
     });
 
@@ -311,9 +311,9 @@ describe('DataAdaptor - Integration Tests', () => {
         { sources: {email: 'email'}, target: 'email', type: 'string', format: 'email', required: true },
       ];
 
-      adaptor = new DataAdaptor(mapping);
+      mapper = new DataMapper(mapping);
 
-      expect(() => adaptor.transform({ email: 'invalid-email' }))
+      expect(() => mapper.transform({ email: 'invalid-email' }))
         .toThrow(/email format/);
     });
 
@@ -322,9 +322,9 @@ describe('DataAdaptor - Integration Tests', () => {
         { sources: {age: 'age'}, target: 'userAge', type: 'number', required: true },
       ];
 
-      adaptor = new DataAdaptor(mapping);
+      mapper = new DataMapper(mapping);
 
-      expect(() => adaptor.transform({ age: 'invalid' }))
+      expect(() => mapper.transform({ age: 'invalid' }))
         .toThrow(/userAge/);
     });
 
@@ -341,9 +341,9 @@ describe('DataAdaptor - Integration Tests', () => {
         },
       ];
 
-      adaptor = new DataAdaptor(mapping);
+      mapper = new DataMapper(mapping);
 
-      expect(() => adaptor.transform({ value: 'test' }))
+      expect(() => mapper.transform({ value: 'test' }))
         .toThrow(/Transform failed/);
     });
   });
@@ -401,8 +401,8 @@ describe('DataAdaptor - Integration Tests', () => {
         },
       ];
 
-      adaptor = new DataAdaptor(mapping);
-      const result = adaptor.transform({
+      mapper = new DataMapper(mapping);
+      const result = mapper.transform({
         sys_id: '550e8400-e29b-41d4-a716-446655440000',
         sys_created_on: '2024-01-15 10:30:00',
         state: '2',
@@ -434,8 +434,8 @@ describe('DataAdaptor - Integration Tests', () => {
       const person = { name: 'John', age: 30 };
       const original = JSON.parse(JSON.stringify(person));
 
-      adaptor = new DataAdaptor(mapping);
-      adaptor.transform(person);
+      mapper = new DataMapper(mapping);
+      mapper.transform(person);
 
       expect(person).toEqual(original);
     });
@@ -447,8 +447,8 @@ describe('DataAdaptor - Integration Tests', () => {
 
       const original = JSON.parse(JSON.stringify(mapping));
 
-      adaptor = new DataAdaptor(mapping);
-      adaptor.transform({ name: 'John' });
+      mapper = new DataMapper(mapping);
+      mapper.transform({ name: 'John' });
 
       expect(mapping).toEqual(original);
     });
