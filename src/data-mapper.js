@@ -1,10 +1,10 @@
-// This file is part of AdaptorExp.
+// This file is part of MapperExp.
 //
-// AdaptorExp is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+// MapperExp is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 //
-// AdaptorExp is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+// MapperExp is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License along with AdaptorExp. If not, see <https://www.gnu.org/licenses/>.
+// You should have received a copy of the GNU General Public License along with MapperExp. If not, see <https://www.gnu.org/licenses/>.
 
 'use strict';
 
@@ -13,7 +13,7 @@ const ValueExtractor = require('./value-extractor');
 const ValueSetter = require('./value-setter');
 const { ValidatorFactory } = require('./validators');
 
-class DataAdaptor {
+class DataMapper {
   constructor(mappingConfig) {
     if (!Array.isArray(mappingConfig)) {
       throw new Error('Mapping config must be an array');
@@ -143,4 +143,4 @@ class DataAdaptor {
   }
 }
 
-module.exports = DataAdaptor;
+module.exports = DataMapper;

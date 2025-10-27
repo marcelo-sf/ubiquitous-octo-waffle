@@ -1,9 +1,9 @@
-# AdaptorExp
+# MapperExp
 
 A tiny, deterministic transformation layer that maps data from a source object to a target shape using a declarative mapping and small, pure transform functions.
 
 - **Predictable input to transforms.** Transforms always receive a named object whose keys mirror your `sources` declaration (plus `{ source }` in context).
-- **Clear error reporting.** Any thrown error is wrapped with the target path:  
+- **Clear error reporting.** Any thrown error is wrapped with the target path:
   `Transformation failed at field "path.to.field": <reason>`.
 - **Validation built in.** Type + constraints (string/number/boolean/array/object/null) are supported.
 - **No mutation.** Neither the source object nor the mapping is ever mutated.
@@ -23,7 +23,7 @@ npm install adaptor-exp
 ## Quick start
 
 ```js
-const DataAdaptor = require('./src/data-adaptor');
+const DataMapper = require('./data-mapper');
 
 const mapping = [
   // 1) Simple rename
@@ -59,7 +59,7 @@ const mapping = [
   }
 ];
 
-const adaptor = new DataAdaptor({ mapping });
+const adaptor = new DataMapper({ mapping });
 
 const out = adaptor.transform({
   user_name: 'jdoe',
@@ -106,7 +106,7 @@ Each rule is an object with:
 (value: Record<string, any>, ctx: { source: any }) => any
 ```
 
-- `value` is **always an object** whose keys mirror your `sources`.  
+- `value` is **always an object** whose keys mirror your `sources`.
   Example:
 
   ```js
@@ -220,7 +220,7 @@ const mapping = [
   }
 ];
 
-const adaptor = new DataAdaptor({ mapping });
+const adaptor = new DataMapper({ mapping });
 
 const out = adaptor.transform({
   sys_id: 'INC00123',
@@ -244,7 +244,7 @@ console.log(out);
 ## API
 
 ```ts
-new DataAdaptor(options: {
+new DataMapper(options: {
   mapping: Rule[]
   extractor?: { get(obj: any, path: string): any }
   setter?:    { set(obj: any, path: string, value: any): void }
