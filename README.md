@@ -270,24 +270,6 @@ If you don’t provide `extractor`, `setter`, or `validators`, sensible defaults
 
 ---
 
-## Migration tips
-
-If you previously used a positional array for multi-field inputs, switch to **named inputs**:
-
-```diff
-- { source: ['first_name','last_name'], transform: (values) => values.join(' ') }
-+ { sources: { first: 'first_name', last: 'last_name' }, transform: (i) => `${i.first} ${i.last}` }
-```
-
-For single-field passthrough without a transform:
-
-```diff
-- { source: 'user_name', target: 'userName' }
-+ { sources: { value: 'user_name' }, target: 'userName' }
-```
-
----
-
 ## License
 
 GPL-3.0
